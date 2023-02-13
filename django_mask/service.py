@@ -1,29 +1,33 @@
-from django.db.models import Model as DjangoModel
-
-from django_mask.mask_models import MaskTask, MaskModel, UpdateTask
-# from mask.fake import new_faker
+from django_mask.mask_models import MaskTask, UpdateTask
+from django_mask.fake import new_faker
 
 
-def create_update_tasks(msk_model: MaskModel, chunks: int):
-    update_tasks = []
-    dj_model: DjangoModel = msk_model.dj_model
-    table_name = dj_model._meta.tablename
-    start = 0
-    stop = chunks
-    while True:
-        ids = dj_model.objects.values_list('id', flat=True)[start:stop]
-        if not ids:
-            break
-        task = UpdateTask(table_name, ids, msk_model.func_map)
-        update_tasks.append(task)
-        start = stop
-        stop += chunks
-    return update_tasks
+class MaskService:
 
+    @classmethod
+    def create_update_tasks(cls, msk_model, chunks, faker):
+        update_tasks = []
+        dj_model = msk_model.dj_model
+        table_name = dj_model._meta.db_table
+        start = 0
+        stop = chunks
+        while True:
+            ids = dj_model.objects.values_list('id', flat=True)[start:stop]
+            if not ids:
+                break
+            task = UpdateTask(table_name, ids, msk_model.func_map, faker)
+            update_tasks.append(task)
+            start = stop
+            stop += chunks
+        return update_tasks
 
-def run(cls, task: MaskTask, chunks=500, commit=True) -> None:
-    # fkr = new_faker(task.locale)
-    for m in task.models:
-        if m.is_empty:
-            continue
-        create_update_tasks(m, chunks)
+    @classmethod
+    def run(cls, task: MaskTask, chunks=500, commit=True) -> None:
+        fkr = new_faker(task.locale)
+        tasks = []
+        for m in task.models:
+            if m.is_empty:
+                continue
+            tasks.extend(cls.create_update_tasks(m, chunks, fkr))
+        for t in tasks:
+            t.process()

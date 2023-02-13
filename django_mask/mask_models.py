@@ -103,12 +103,13 @@ class MaskTask:
 
 
 class UpdateTask:
-    __slots__ = ("__tablename", "__ids", "__handlers")
+    __slots__ = ("__tablename", "__ids", "__handlers", "__faker")
 
-    def __init__(self, tablename: str, ids: List[int], handlers: List[Dict[str, str | int]]) -> None:
+    def __init__(self, tablename, ids, handlers, faker):
         self.__tablename = tablename
         self.__ids = ids
         self.__handlers = handlers
+        self.__faker = faker
 
     @property
     def db_table_name(self):
@@ -121,3 +122,33 @@ class UpdateTask:
     @property
     def handlers(self):
         return self.__handlers
+
+    def process(self):
+        updated_fields = self.handlers.keys()
+
+        set_str = ", ".join([
+            "{} = val.{}".format(field, field)
+            for field in updated_fields
+        ])
+
+        values = []
+        for field in updated_fields:
+            mask_func = self.handlers[field]
+            values.append(mask_func(self.__faker, len(self.chunk_ids)))
+        values_str = "\n".join(str(vals) for vals in zip(values))
+
+        query = """
+        UPDATE {} as base
+        SET {}
+        FROM (
+            VALUES
+            {}
+        ) AS val(id, {})
+        WHERE base.id = val.id
+        """.format(
+            self.db_table_name,
+            set_str,
+            values_str,
+            ", ".join(updated_fields),
+        )
+        print(query)
