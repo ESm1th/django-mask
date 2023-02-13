@@ -1,6 +1,6 @@
 from typing import Optional, Tuple
 
-from mask.error import Error
+from django_mask.error import Error
 
 
 FILE_NOT_FOUND_MSG_TEMPLATE = "File not found by path: {}"

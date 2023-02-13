@@ -1,8 +1,8 @@
 import os
 
 import pytest
-from mask.config.parser import parse
-from mask.models import MaskField, MaskModel, MaskTask
+from django_mask.config.parser import parse
+from django_mask.mask_models import MaskField, MaskModel, MaskTask
 
 
 os.environ["TEST_IMPORTER"] = "1"

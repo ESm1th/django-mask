@@ -4,8 +4,8 @@ from typing import List, Dict, Optional, Tuple
 from collections import OrderedDict
 
 from django.db.models import Model as DjangoModel
-from mask.handlers import HANDLERS
-from mask.importer import FakeImporter, DjangoImporter
+from django_mask.handlers import HANDLERS
+from django_mask.importer import FakeImporter, DjangoImporter
 
 
 IMPORTER = DjangoImporter if not os.getenv("TEST_IMPORTER") else FakeImporter

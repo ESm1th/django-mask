@@ -1,7 +1,7 @@
 import yaml
 from typing import Dict
 
-from mask.models import MaskField, MaskModel, MaskTask
+from django_mask.mask_models import MaskField, MaskModel, MaskTask
 
 
 def parse(conf_as_string: str) -> MaskTask:
