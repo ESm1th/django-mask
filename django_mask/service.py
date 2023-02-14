@@ -8,14 +8,13 @@ class MaskService:
     def create_update_tasks(cls, msk_model, chunks, faker):
         update_tasks = []
         dj_model = msk_model.dj_model
-        table_name = dj_model._meta.db_table
         start = 0
         stop = chunks
         while True:
             ids = dj_model.objects.values_list('id', flat=True)[start:stop]
             if not ids:
                 break
-            task = UpdateTask(table_name, ids, msk_model.func_map, faker)
+            task = UpdateTask(msk_model, ids, faker)
             update_tasks.append(task)
             start = stop
             stop += chunks

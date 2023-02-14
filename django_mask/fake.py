@@ -87,3 +87,7 @@ def mask_individual_ogrn(f, chunks=DEFAULT_CHUNKS):
 
 def mask_email(f, chunks=DEFAULT_CHUNKS):
     return mask_from_chunks(f.email, chunks)
+
+
+def mask_phone(f, chunks=DEFAULT_CHUNKS):
+    return mask_from_chunks(f.phone_number, chunks)
