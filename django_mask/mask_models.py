@@ -2,7 +2,8 @@ from django.db import connection
 
 from django_mask.handlers import HANDLERS
 from django_mask.fake import DEFAULT_CHUNKS
-from django_mask.importer import DjangoModelImporter
+from django_mask.utils import import_model
+from django_mask.error import Error
 
 
 class MaskField:
@@ -36,18 +37,28 @@ class MaskField:
 class MaskModel:
     __slots__ = ("__model_path", "__model", "__mask_fields")
 
-    def __init__(self, path) -> None:
+    def __init__(self, path, dj_model):
         self.__model_path = path
-        self.__model = None
+        self.__model = dj_model
         self.__mask_fields = tuple()
+
+    def __eq__(self, other):
+        if type(self) != type(other):
+            return False
+        return (self.model_path, self.ordered_db_fields) == (other.model_path, other.ordered_db_fields)
+
+    @classmethod
+    def new(cls, path):
+        dj_model, error = import_model(path)
+        if isinstance(error, Error):
+            return None, error
+        return cls(path, dj_model), None
 
     def add_field(self, mask_field):
         self.__mask_fields = self.__mask_fields + (mask_field, )
 
     @property
     def dj_model(self):
-        if self.__model is None:
-            self.__model = DjangoModelImporter(self.__model_path).import_model()
         return self.__model
 
     @property
@@ -64,11 +75,11 @@ class MaskModel:
 
     @property
     def ordered_db_fields(self):
-        return [f.field_name for f in self.__mask_fields]
+        return tuple(sorted([f.field_name for f in self.__mask_fields]))
 
     def mask(self, faker, chunks=DEFAULT_CHUNKS):
         values = []
-        for f in self.__mask_fields:
+        for f in sorted(self.__mask_fields, key=lambda mf: mf.field_name):
             values.append(f.mask(faker, chunks))
         return tuple(zip(*values))
 

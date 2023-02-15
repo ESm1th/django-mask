@@ -12,7 +12,7 @@ DEFAULT_CHUNKS = 1
 def new_faker(locale=None):
     f = Faker(locale)
     if isinstance(locale, str):
-        f.seed_locale(locale.replace("-", "_"), 0)
+        f.seed_locale(locale, 0)
     return f
 
 
