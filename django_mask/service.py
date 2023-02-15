@@ -21,7 +21,7 @@ class MaskService:
         return update_tasks
 
     @classmethod
-    def run(cls, task: MaskTask, chunks=500, commit=True) -> None:
+    def run(cls, task: MaskTask, chunks=500, commit=True):
         fkr = new_faker(task.locale)
         tasks = []
         for m in task.models:

@@ -28,7 +28,7 @@ class MaskField:
     def mask(self, faker, chunks=DEFAULT_CHUNKS):
         return self.process_func(faker, chunks)
 
-    def __eq__(self, other: object):
+    def __eq__(self, other):
         if type(self) != type(other):
             return False
         return self.func_map == other.func_map
