@@ -8,6 +8,7 @@ INVALID_FILE_CONTENT_FORMAT = "Error: invalid file content format"
 
 
 class Error:
+    __slots__ = ("__msg", "__exception")
 
     def __init__(self, msg, exc=None):
         self.__msg = msg
