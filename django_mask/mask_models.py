@@ -114,10 +114,7 @@ class MaskModel:
             "{} = val.{}".format(field, field)
             for field in ordered_db_fields
         ])
-        values_str = ",\n\t    ".join([
-            str(val).replace("'", "")
-            for val in values_with_ids
-        ])
+        values_str = ",\n\t    ".join([str(val) for val in values_with_ids])
         fields_str = ", ".join(ordered_db_fields)
 
         query = query.format(
