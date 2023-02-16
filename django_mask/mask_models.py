@@ -1,7 +1,7 @@
 from django.db import connection
 
 from django_mask.handlers import HANDLERS
-from django_mask.fake import DEFAULT_CHUNKS
+from django_mask.fake import DEFAULT_CHUNKS, new_faker
 from django_mask.utils import import_model
 from django_mask.error import Error
 
@@ -127,6 +127,23 @@ class MaskModel:
         )
         return query
 
+    def create_update_task(self, faker, ids):
+        query = self.get_update_sql_query(faker, ids)
+        return UpdateTask(query)
+
+    def get_update_tasks(self, chunks, faker):
+        update_tasks = []
+        start = 0
+        stop = chunks
+        while True:
+            ids = self.dj_model.objects.values_list('id', flat=True)[start:stop]
+            if not ids:
+                break
+            update_tasks.append(self.create_update_task(faker, ids))
+            start = stop
+            stop += chunks
+        return update_tasks
+
 
 class MaskTask:
     __slots__ = ("__locale", "__mask_models")
@@ -134,6 +151,11 @@ class MaskTask:
     def __init__(self, locale=None):
         self.__locale = locale
         self.__mask_models = tuple()
+
+    def __eq__(self, other):
+        if type(self) != type(other):
+            return False
+        return (self.locale, self.models) == (other.locale, other.models)
 
     @property
     def locale(self):
@@ -146,33 +168,26 @@ class MaskTask:
     def models(self):
         return self.__mask_models
 
-    def __eq__(self, other):
-        if type(self) != type(other):
-            return False
-        return (self.locale, self.models) == (other.locale, other.models)
+    def get_update_tasks(self, chunks):
+        fk = new_faker(self.locale)
+        update_tasks = []
+        for mask_model in self.models:
+            if mask_model.is_empty:
+                continue
+            update_tasks.extend(mask_model.get_update_tasks(chunks, fk))
+        return update_tasks
 
 
 class UpdateTask:
-    __slots__ = ("__msk_model", "__ids", "__faker")
+    __slots__ = "__query"
 
-    def __init__(self, msk_model, ids, faker):
-        self.__msk_model = msk_model
-        self.__ids = ids
-        self.__faker = faker
+    def __init__(self, query):
+        self.__query = query
 
-    @property
-    def mask_model(self):
-        return self.__msk_model
+    def query(self):
+        return self.__query
 
-    @property
-    def chunk_ids(self):
-        return self.__ids
-
-    @property
-    def faker(self):
-        return self.__faker
-
-    def process(self):
-        update_query = self.mask_model.get_update_sql_query(self.faker, self.chunk_ids)
-        cursor = connection.cursor()
-        cursor.execute(update_query)
+    def process(self, cursor=None):
+        if cursor is None:
+            cursor = connection.cursor()
+        cursor.execute(self.query)

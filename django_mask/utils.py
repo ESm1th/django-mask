@@ -1,3 +1,4 @@
+import sys
 from importlib import import_module
 
 from django_mask.error import (
@@ -34,3 +35,14 @@ def import_model(path):
     except (ImportError, ValueError) as exc:
         error = import_model_error(path, exc)
         return None, error
+
+
+def progress(count, total):
+    bar_len = 60
+    filled_len = int(round(bar_len * count / float(total)))
+
+    percents = round(100.0 * count / float(total), 1)
+    bar = '=' * filled_len + '-' * (bar_len - filled_len)
+
+    sys.stdout.write("[{}] {}{}\r".format(bar, percents, '%'))
+    sys.stdout.flush()

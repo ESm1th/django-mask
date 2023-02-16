@@ -1,4 +1,4 @@
-from faker import Faker
+from faker import Factory
 from faker.providers.phone_number.ru_RU import Provider
 
 
@@ -10,9 +10,8 @@ DEFAULT_CHUNKS = 1
 
 
 def new_faker(locale=None):
-    f = Faker(locale)
-    if isinstance(locale, str):
-        f.seed_locale(locale, 0)
+    f = Factory.create(locale)
+    f.seed(0)
     return f
 
 
@@ -91,3 +90,7 @@ def mask_email(f, chunks=DEFAULT_CHUNKS):
 
 def mask_phone(f, chunks=DEFAULT_CHUNKS):
     return mask_from_chunks(f.phone_number, chunks)
+
+
+def mask_username(f, chunks=DEFAULT_CHUNKS):
+    return mask_from_chunks(f.unique.user_name, chunks)

@@ -25,4 +25,5 @@ HANDLERS = {
     Fields.ADDRESS: fake.mask_address,
     Fields.EMAIL: fake.mask_email,
     Fields.PHONE: fake.mask_phone,
+    Fields.USERNAME: fake.mask_username
 }
