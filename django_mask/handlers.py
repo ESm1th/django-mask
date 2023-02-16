@@ -13,6 +13,7 @@ class Fields:
     OGRN = "mask_ogrn"
     ADDRESS = "mask_address"
     PHONE = "mask_phone"
+    COMPANY_NAME = "mask_company_name"
 
 
 HANDLERS = {
@@ -25,5 +26,6 @@ HANDLERS = {
     Fields.ADDRESS: fake.mask_address,
     Fields.EMAIL: fake.mask_email,
     Fields.PHONE: fake.mask_phone,
-    Fields.USERNAME: fake.mask_username
+    Fields.USERNAME: fake.mask_username,
+    Fields.COMPANY_NAME: fake.mask_company_name
 }
