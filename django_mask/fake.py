@@ -1,4 +1,4 @@
-from faker import Factory
+from faker import Faker
 from faker.providers.phone_number.ru_RU import Provider
 
 
@@ -10,8 +10,8 @@ DEFAULT_CHUNKS = 1
 
 
 def new_faker(locale=None):
-    f = Factory.create(locale)
-    f.seed(0)
+    f = Faker(locale)
+    f.seed_locale(locale, 0)
     return f
 
 

@@ -41,7 +41,7 @@ def test_mask_model_values(mask_model, locale_str):
     phone_values = fake.mask_phone(fk, chunks)
     test_values = zip(email_values, first_names_values, last_names_values, phone_values)
 
-    fk.seed(0)
+    fk.seed_locale(locale_str, 0)
     masked_values = mask_model.mask(fk, chunks)
     assert tuple(test_values) == tuple(masked_values)
 
@@ -96,7 +96,7 @@ def test_mask_get_update_sql_query(mask_model, locale_str):
     expected_lines = expected.splitlines()
 
     with patch("django_mask.mask_models.MaskModel.dj_model", new_callable=PropertyMock) as mock_property:
-        fk.seed(0)
+        fk.seed_locale(locale_str, 0)
         mock_property.return_value = fake_django_model()
         query = mask_model.get_update_sql_query(fk, ids)
         for idx, line in enumerate(query.splitlines()):
