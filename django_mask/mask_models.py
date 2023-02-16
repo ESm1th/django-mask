@@ -1,3 +1,4 @@
+import sys
 from django.db import connection
 
 from django_mask.handlers import HANDLERS
@@ -188,7 +189,9 @@ class UpdateTask:
     def query(self):
         return self.__query
 
-    def process(self, cursor=None):
+    def process(self, cursor=None, print_query=False):
         if cursor is None:
             cursor = connection.cursor()
+        if print_query:
+            sys.stdout.write("{}\n".format(self.query))
         cursor.execute(self.query)

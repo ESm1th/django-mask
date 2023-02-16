@@ -24,6 +24,12 @@ class Command(BaseCommand):
             default=500,
             help="Number of rows that will update in single sql query"
         )
+        parser.add_argument(
+            "-s", "--print_sql",
+            dest="print_sql",
+            action="store_true",
+            help="Print update sql query"
+        )
 
     def handle(self, *args, **options):
         conf_path = options["conf_path"]
@@ -52,7 +58,7 @@ class Command(BaseCommand):
         cursor = connection.cursor()
 
         for counter, update_task in enumerate(update_tasks, 1):
-            update_task.process(cursor=cursor)
+            update_task.process(cursor=cursor, print_query=options["print_sql"])
             progress(counter, total_count)
 
         self.stdout.write("\n")
