@@ -184,6 +184,7 @@ class UpdateTask:
     def __init__(self, query):
         self.__query = query
 
+    @property
     def query(self):
         return self.__query
 
