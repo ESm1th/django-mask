@@ -2,9 +2,10 @@ import sys
 from django.db import connection
 
 from django_mask.handlers import HANDLERS
-from django_mask.fake import DEFAULT_CHUNKS, new_faker
+from django_mask.fake import new_faker
 from django_mask.utils import import_model
 from django_mask.error import Error
+from django_mask.queries import Queries
 
 
 class MaskField:
@@ -26,8 +27,8 @@ class MaskField:
     def func_map(self):
         return (self.field_name, self.process_func)
 
-    def mask(self, faker, chunks=DEFAULT_CHUNKS):
-        return self.process_func(faker, chunks)
+    def mask(self, faker, values):
+        return self.process_func(faker, values)
 
     def __eq__(self, other):
         if type(self) != type(other):
@@ -78,11 +79,11 @@ class MaskModel:
     def ordered_db_fields(self):
         return tuple(sorted([f.field_name for f in self.__mask_fields]))
 
-    def mask(self, faker, chunks=DEFAULT_CHUNKS):
-        values = []
-        for f in sorted(self.__mask_fields, key=lambda mf: mf.field_name):
-            values.append(f.mask(faker, chunks))
-        return tuple(zip(*values))
+    def mask(self, faker, values):
+        faked_values = []
+        for i, f in enumerate(sorted(self.__mask_fields, key=lambda mf: mf.field_name)):
+            faked_values.append(f.mask(faker, values[i]))
+        return tuple(zip(*faked_values))
 
     def update_values_with_ids(self, ids, values):
         if len(ids) != len(values):
@@ -94,40 +95,14 @@ class MaskModel:
             )
         return tuple(with_ids)
 
-    def get_update_sql_query(self, faker, ids):
-        query = """
-        UPDATE {} as base
-        SET
-            {}
-        FROM (
-            VALUES
-            {}
-        ) AS val(id, {})
-        WHERE base.id = val.id
-        """
-
-        values = self.mask(faker, len(ids))
-        values_with_ids = self.update_values_with_ids(ids, values)
-        ordered_db_fields = self.ordered_db_fields
-
-        set_str = ",\n\t    ".join([
-            "{} = val.{}".format(field, field)
-            for field in ordered_db_fields
-        ])
-        values_str = ",\n\t    ".join([str(val) for val in values_with_ids])
-        fields_str = ", ".join(ordered_db_fields)
-
-        query = query.format(
-            self.db_table_name,
-            set_str,
-            values_str,
-            fields_str
-        )
-        return query
-
     def create_update_task(self, faker, ids):
-        query = self.get_update_sql_query(faker, ids)
-        return UpdateTask(query)
+        queries = Queries()
+        values_from_db = queries.get_existing_values(self.db_table_name, self.ordered_db_fields, ids)
+        values_to_update = self.mask(faker, values_from_db)
+        values_to_update = self.update_values_with_ids(ids, values_to_update)
+        update_query = queries.build_update_query(self.db_table_name, self.ordered_db_fields, values_to_update)
+        task = UpdateTask(update_query)
+        return task
 
     def get_update_tasks(self, chunks, faker):
         update_tasks = []

@@ -10,6 +10,13 @@ TEST_LOCALE = "ru"
 TEST_MASK_MODEL_PATH = "some.test.path"
 TEST_DB_TABLE_NAME = "order_order"
 
+existing_db_values = (
+    ["test_x@test.test", "test_y@test.test", "test_z@test.test"],
+    ["test_x", "test_y", "test_z"],
+    ["testov_x", "testov_y", "testov_z"],
+    ["+71111111111", "+72222222222", "+73333333333"]
+)
+
 
 def fake_django_model(db_table="", exists=True):
     m = Mock()
@@ -42,6 +49,11 @@ def field_handlers():
         "email": "mask_email",
         "phone": "mask_phone",
     }
+
+
+@pytest.fixture
+def existing_values_from_db():
+    return existing_db_values
 
 
 @pytest.fixture

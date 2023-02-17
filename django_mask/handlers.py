@@ -17,12 +17,12 @@ class Fields:
 
 
 HANDLERS = {
-    Fields.INN: fake.mask_buisness_inn,
+    Fields.INN: fake.mask_business_inn,
     Fields.KPP: fake.mask_kpp,
     Fields.FIRST_NAME: fake.mask_first_name,
     Fields.LAST_NAME: fake.mask_last_name,
     Fields.MIDDLE_NAME: fake.mask_middle_name,
-    Fields.OGRN: fake.mask_buisness_ogrn,
+    Fields.OGRN: fake.mask_business_ogrn,
     Fields.ADDRESS: fake.mask_address,
     Fields.EMAIL: fake.mask_email,
     Fields.PHONE: fake.mask_phone,
