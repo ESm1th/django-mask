@@ -16,14 +16,14 @@ def valid_conf(mask_model_path):
       - path: "{}"
         fields:
           - name: "email"
-            processor: "email"
+            mask_func: "email"
           - name: "name"
-            processor: "name"
+            mask_func: "name"
 
       - path: "{}"
         fields:
           - name: "name"
-            processor: "name"
+            mask_func: "name"
     """.format(mask_model_path, mask_model_path)
 
 
@@ -35,13 +35,13 @@ def invalid_conf():
         - path: "some_path"
           fields:
             - name: "email"
-              processor: "email"
+              mask_func: "email"
             - name: "name"
 
         - path: "another_path"
           fields:
             - name: "name"
-              processor: "name"
+              mask_func: "name"
     """
 
 

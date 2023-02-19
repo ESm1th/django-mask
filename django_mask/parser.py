@@ -37,7 +37,7 @@ def parse_config(conf_as_string):
                 errors.append(error)
                 continue
             for f in m["fields"]:
-                mask_field = MaskField(f["name"], f["processor"])
+                mask_field = MaskField(f["name"], f["mask_func"])
                 mask_model.add_field(mask_field)
             task.add_model(mask_model)
         if errors:

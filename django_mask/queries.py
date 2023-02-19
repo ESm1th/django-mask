@@ -15,10 +15,6 @@ class Queries:
         raw_values = self.__cursor.fetchall()
         return raw_values[0]
 
-    def update_db(self, db_table_name, field_names, values):
-        query = self.build_update_query(db_table_name, field_names, values)
-        self.__cursor.execute(query)
-
     @staticmethod
     def build_select_values_query(db_table_name, field_names, ids):
         """

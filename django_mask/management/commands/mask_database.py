@@ -1,7 +1,7 @@
 import os
 import sys
 
-from django.db import connection
+from django.db import connection, transaction
 
 from django.core.management.base import BaseCommand, CommandError
 from django_mask.parser import parse_config
@@ -15,7 +15,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "-p", "--path",
             dest="conf_path",
-            help="Path to yaml config file with masking tasks"
+            help="Path to yaml config file with masking task"
         )
         parser.add_argument(
             "-c", "--chunks",
@@ -57,9 +57,10 @@ class Command(BaseCommand):
         total_count = len(update_tasks)
         cursor = connection.cursor()
 
-        for counter, update_task in enumerate(update_tasks, 1):
-            update_task.process(cursor=cursor, print_query=options["print_sql"])
-            progress(counter, total_count)
+        with transaction.atomic():
+            for counter, update_task in enumerate(update_tasks, 1):
+                update_task.process(cursor=cursor, print_query=options["print_sql"])
+                progress(counter, total_count)
 
         self.stdout.write("\n")
         self.stdout.write("Done")

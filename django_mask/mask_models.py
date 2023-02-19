@@ -100,8 +100,7 @@ class MaskModel:
         values_from_db = queries.get_existing_values(self.db_table_name, self.ordered_db_fields, ids)
         values_to_update = self.mask(faker, values_from_db)
         values_to_update = self.update_values_with_ids(ids, values_to_update)
-        update_query = queries.build_update_query(self.db_table_name, self.ordered_db_fields, values_to_update)
-        task = UpdateTask(update_query)
+        task = UpdateTask(self.db_table_name, self.ordered_db_fields, values_to_update)
         return task
 
     def get_update_tasks(self, chunks, faker):
@@ -152,10 +151,10 @@ class MaskTask:
 
 
 class UpdateTask:
-    __slots__ = "__query"
+    __slots__ = ("__query")
 
-    def __init__(self, query):
-        self.__query = query
+    def __init__(self, db_table_name, fields, values):
+        self.__query = Queries.build_update_query(db_table_name, fields, values)
 
     @property
     def query(self):

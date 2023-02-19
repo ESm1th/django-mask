@@ -7,7 +7,6 @@ Provider.formats = (
     PHONE_NUMBER_FORMAT,
 )
 
-DEFAULT_CHUNKS = 1
 BUSINESS_INN_LENGTH = 10
 INDIVIDUALS_INN_LENGTH = 12
 BUSINESS_OGRN_LENGTH = 13
@@ -125,3 +124,27 @@ def mask_phone(f, values):
 
 def mask_username(f, values):
     return mask_from_chunks(f.unique.user_name, len(values))
+
+
+def mask_bank(f, values):
+    return mask_from_chunks(f.bank, len(values))
+
+
+def mask_bik(f, values):
+    return mask_from_chunks(f.bic, len(values))
+
+
+def mask_corr_account(f, values):
+    return mask_from_chunks(f.correspondent_account, len(values))
+
+
+def mask_pay_account(f, values):
+    return mask_from_chunks(f.checking_account, len(values))
+
+
+def mask_iban(f, values):
+    return mask_from_chunks(f.iban, len(values))
+
+
+def mask_swift(f, values):
+    return mask_from_chunks(f.swift, len(values))
